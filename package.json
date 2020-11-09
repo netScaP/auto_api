@@ -1,0 +1,91 @@
+{
+  "name": "api",
+  "description": "",
+  "version": "0.0.0",
+  "homepage": "",
+  "private": true,
+  "main": "src",
+  "keywords": [
+    "feathers"
+  ],
+  "author": {
+    "name": "Ali Mamaev",
+    "email": "mamaev-ali@inbox.ru"
+  },
+  "contributors": [],
+  "bugs": {},
+  "directories": {
+    "lib": "src",
+    "test": "test/",
+    "config": "config/"
+  },
+  "engines": {
+    "node": "^12.0.0",
+    "yarn": ">= 0.18.0"
+  },
+  "scripts": {
+    "test": "yarn run lint && yarn run compile && yarn run mocha",
+    "lint": "eslint src/. test/. --config .eslintrc.json --ext .ts --fix",
+    "dev": "ts-node-dev --no-notify src/",
+    "start": "yarn run compile && node lib/",
+    "mocha": "ts-mocha \"test/**/*.ts\" --recursive --exit",
+    "compile": "shx rm -rf lib/ && tsc",
+    "migrations": "NODE_ENV=test yarn run compile && sequelize db:migrate",
+    "migrations-undo": "NODE_ENV=test yarn run compile && sequelize db:migrate:undo",
+    "migrations-create": "sequelize migration:create --name=\"$name\"",
+    "check-types": "tsc",
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(ts|json)\"",
+    "format": "yarn run prettier -- --write",
+    "check-format": "yarn run prettier -- --list-different"
+  },
+  "standard": {
+    "env": [
+      "mocha"
+    ],
+    "ignore": []
+  },
+  "types": "lib/",
+  "dependencies": {
+    "@feathersjs/authentication": "^4.5.8",
+    "@feathersjs/authentication-local": "^4.5.8",
+    "@feathersjs/authentication-oauth": "^4.5.8",
+    "@feathersjs/configuration": "^4.5.8",
+    "@feathersjs/errors": "^4.5.8",
+    "@feathersjs/express": "^4.5.8",
+    "@feathersjs/feathers": "^4.5.8",
+    "@feathersjs/socketio": "^4.5.8",
+    "@feathersjs/transport-commons": "^4.5.10",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "feathers-hooks-common": "^5.0.4",
+    "feathers-permissions": "^2.0.3",
+    "feathers-sequelize": "^6.2.0",
+    "helmet": "^4.1.1",
+    "pg": "^8.4.2",
+    "sequelize": "^6.3.5",
+    "serve-favicon": "^2.5.0",
+    "winston": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.33",
+    "@types/compression": "^1.7.0",
+    "@types/cors": "^2.8.8",
+    "@types/helmet": "^4.0.0",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/mocha": "^8.0.3",
+    "@types/serve-favicon": "^2.5.1",
+    "@types/validator": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.6.1",
+    "@typescript-eslint/parser": "^4.6.1",
+    "axios": "^0.21.0",
+    "eslint": "^7.10.0",
+    "mocha": "^8.1.3",
+    "prettier": "^2.1.2",
+    "sequelize-cli": "^6.2.0",
+    "shx": "^0.3.3",
+    "ts-mocha": "^8.0.0",
+    "ts-node-dev": "^1.0.0",
+    "tslint": "^6.1.3",
+    "typescript": "^4.0.3"
+  }
+}
