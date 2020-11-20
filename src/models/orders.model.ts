@@ -60,15 +60,20 @@ export default function (app: Application): typeof Model {
       foreignKey: { name: 'orderResponseId' },
     });
 
-    (orders as any).hasMany(models.order_response, {
-      as: 'orderResponses',
-      foreignKey: { name: 'orderId', allowNull: false },
-      onDelete: 'CASCADE',
-    });
+    // (orders as any).hasMany(models.order_response, {
+    //   as: 'orderResponses',
+    //   foreignKey: { name: 'orderId', allowNull: false },
+    //   onDelete: 'CASCADE',
+    // });
     (orders as any).hasMany(models.order_feedbacks, {
       as: 'orderFeedbacks',
       foreignKey: { name: 'orderId', allowNull: false },
       onDelete: 'CASCADE',
+    });
+
+    (orders as any).belongsTo(models.cars, {
+      as: 'car',
+      foreignKey: { name: 'carId' },
     });
   };
 

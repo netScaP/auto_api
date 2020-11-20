@@ -8,3 +8,9 @@ export interface ServiceModels {}
 
 // The application instance type that will be used everywhere else
 export type Application = ExpressFeathers<ServiceTypes>;
+
+export interface Config {
+  carApi: {
+    url: string;
+  };
+}

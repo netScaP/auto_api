@@ -1,27 +1,28 @@
-// Initializes the `auth` service on path `/auth`
+// Initializes the `cars` service on path `/cars`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { Auth } from './auth.class';
-import hooks from './auth.hooks';
+import { Cars } from './cars.class';
+import createModel from '../../models/cars.model';
+import hooks from './cars.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    auth: Auth & ServiceAddons<any>;
+    'cars': Cars & ServiceAddons<any>;
   }
 }
 
 export default function (app: Application): void {
   const options = {
-    paginate: app.get('paginate'),
+    Model: createModel(app),
+    paginate: app.get('paginate')
   };
 
   // Initialize our service with any options it requires
-  app.use('/auth', new Auth(options, app));
+  app.use('/cars', new Cars(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('auth');
+  const service = app.service('cars');
 
-  // @ts-ignore
   service.hooks(hooks);
 }

@@ -23,6 +23,7 @@ export default {
         // const { url, login, password, originator } = <
         //   { url: string; login: string; password: string; originator: string }
         // >app.get('sms');
+        console.log(data);
 
         if (!data || !data.phone || !data.text) {
           throw new BadRequest('Phone and text are required');

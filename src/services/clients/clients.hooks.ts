@@ -53,7 +53,11 @@ export default {
 
 function createUser() {
   return async (context: HookContext<ServiceModels['clients']>) => {
-    const { app, result } = context;
+    const {
+      app,
+      result,
+      params: { $password },
+    } = context;
     const record = result && result.dataValues ? result.dataValues : result;
 
     if (!record) {
@@ -63,18 +67,18 @@ function createUser() {
     const newPassword = generatePassword();
 
     try {
-      await app.service('users').create({
+      const user = await app.service('users').create({
         role: 'client',
         email: record.email,
         phone: record.phone,
-        password: newPassword,
+        password: $password || newPassword,
       });
+      await app.service('clients').patch(record.id, { userId: user.id });
+      record.userId = user.id;
     } catch (err) {
       await app.service('clients').remove(record.id);
       throw err;
     }
-
-    await app.service('auth').create({ phone: record.phone });
 
     return context;
   };

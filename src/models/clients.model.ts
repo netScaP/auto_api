@@ -37,6 +37,12 @@ export default function (app: Application): typeof Model {
       as: 'user',
       foreignKey: { name: 'userId' },
     });
+
+    (clients as any).hasMany(models.cars, {
+      as: 'cars',
+      foreignKey: { name: 'clientId', allowNull: false },
+      onDelete: 'CASCADE',
+    });
   };
 
   return clients;

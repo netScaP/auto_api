@@ -10,17 +10,22 @@ const { hashPassword, protect } = local.hooks;
 
 export default {
   before: {
-    all: [
-      authenticate('jwt'),
-      checkPermissions({ field: 'role', roles: ['admin', 'company'] }),
-      relatePermissions({ type: 'company', relateField: 'companyId' }),
-    ],
+    all: [authenticate('jwt'), relatePermissions({ type: 'company', relateField: 'companyId' })],
     find: [],
     get: [],
-    create: [hashPassword('password')],
-    update: [hashPassword('password')],
-    patch: [hashPassword('password')],
-    remove: [],
+    create: [
+      checkPermissions({ field: 'role', roles: ['admin', 'company'] }),
+      hashPassword('password'),
+    ],
+    update: [
+      checkPermissions({ field: 'role', roles: ['admin', 'company'] }),
+      hashPassword('password'),
+    ],
+    patch: [
+      checkPermissions({ field: 'role', roles: ['admin', 'company'] }),
+      hashPassword('password'),
+    ],
+    remove: [checkPermissions({ field: 'role', roles: ['admin', 'company'] })],
   },
 
   after: {

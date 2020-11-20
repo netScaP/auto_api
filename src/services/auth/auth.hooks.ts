@@ -25,16 +25,21 @@ export default {
           paginate: false,
         }))[0];
 
-        if (client) {
-          client = await app.service('clients').patch(client.id, { ...data, phone });
-        } else {
-          client = await app.service('clients').create({
-            ...data,
-            phone,
-          });
-        }
-
         const password = generatePassword();
+        console.log(client);
+        if (client) {
+          client = await app
+            .service('clients')
+            .patch(client.id, { ...data, phone }, { $password: password });
+        } else {
+          client = await app.service('clients').create(
+            {
+              ...data,
+              phone,
+            },
+            { $password: password }
+          );
+        }
 
         await app.service('users').patch(client.userId, { password });
 

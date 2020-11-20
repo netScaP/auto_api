@@ -9,6 +9,9 @@ import orderFeedbacks from './order-feedbacks/order-feedbacks.service';
 import orderResponse from './order-response/order-response.service';
 import sendSms from './send-sms/send-sms.service';
 import auth from './auth/auth.service';
+import carSearch from './car/search/search.service';
+import carInfo from './car/info/info.service';
+import cars from './cars/cars.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -22,4 +25,7 @@ export default function (app: Application): void {
   app.configure(orderResponse);
   app.configure(sendSms);
   app.configure(auth);
+  app.configure(carSearch);
+  app.configure(carInfo);
+  app.configure(cars);
 }

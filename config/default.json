@@ -6,6 +6,11 @@
     "default": 10,
     "max": 50
   },
+
+  "carApi": {
+    "url": "http://localhost:3031"
+  },
+
   "authentication": {
     "entity": "user",
     "service": "users",
@@ -21,7 +26,7 @@
       "expiresIn": "31d"
     },
     "local": {
-      "usernameField": "email",
+      "usernameField": "phone",
       "passwordField": "password"
     }
   },

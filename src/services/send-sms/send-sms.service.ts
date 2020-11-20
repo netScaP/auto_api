@@ -13,7 +13,7 @@ declare module '../../declarations' {
 
 export default function (app: Application): void {
   const options = {
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
   };
 
   // Initialize our service with any options it requires
@@ -22,5 +22,6 @@ export default function (app: Application): void {
   // Get our initialized service so that we can register hooks
   const service = app.service('send-sms');
 
+  // @ts-ignore
   service.hooks(hooks);
 }
