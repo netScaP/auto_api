@@ -4,7 +4,7 @@ import { HookContext } from '../../app';
 import { ServiceModels } from '../../declarations';
 
 import relatePermissions from '../../hooks/relate-permissions';
-import transformPhone from '../../hooks/transform-phone';
+import search from '../../hooks/search';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -20,8 +20,8 @@ const permissions = [
 
 export default {
   before: {
-    all: [transformPhone()],
-    find: [],
+    all: [companyAccumulatedFields()],
+    find: [search({ fields: ['name', 'email', 'phone'] })],
     get: [],
     create: [
       authenticate('jwt'),
@@ -56,6 +56,30 @@ export default {
     remove: [],
   },
 };
+
+function companyAccumulatedFields() {
+  return async (context: HookContext<ServiceModels['companies']>) => {
+    context.params.sequelize = context.params.sequelize || {};
+    context.params.sequelize.attributes = context.params.sequelize.attributes || {};
+    context.params.sequelize.attributes.include = context.params.sequelize.attributes.include || [];
+    context.params.sequelize.attributes = {
+      include: [
+        ...context.params.sequelize.attributes.include,
+        [
+          `(
+            cast(
+              (SELECT AVG("company_feedbacks"."assessment") FROM company_feedbacks WHERE "company_feedbacks"."companyId" = "companies"."id")
+              as decimal(10,2)
+            )
+          )`,
+          'assessment',
+        ],
+      ],
+    };
+
+    return context;
+  };
+}
 
 function createUser() {
   return async (context: HookContext<ServiceModels['companies']>) => {

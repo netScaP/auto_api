@@ -26,7 +26,7 @@ export default {
         }))[0];
 
         const password = generatePassword();
-        console.log(client);
+
         if (client) {
           client = await app
             .service('clients')

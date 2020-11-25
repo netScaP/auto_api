@@ -14,6 +14,7 @@ export interface Data {
     day: string;
     time: { from: string; to: string }[];
   }[];
+  status: 'active' | 'unactive' | 'banned';
   createdAt: Date;
   updatedAt: Date;
 
@@ -21,6 +22,7 @@ export interface Data {
   toJSON?: () => Data;
 
   user?: ServiceModels['users'];
+  assessment?: string;
 }
 
 declare module '../../declarations' {

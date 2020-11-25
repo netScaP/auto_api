@@ -26,6 +26,10 @@
       "expiresIn": "31d"
     },
     "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "sms": {
       "usernameField": "phone",
       "passwordField": "password"
     }

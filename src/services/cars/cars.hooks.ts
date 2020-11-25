@@ -30,9 +30,9 @@ export default {
   },
 
   after: {
-    all: [],
+    all: [alterItems(getInfo as any)],
     find: [],
-    get: [alterItems(getInfo as any)],
+    get: [],
     create: [],
     update: [],
     patch: [],
@@ -53,11 +53,11 @@ export default {
 async function getInfo(car: ServiceModels['cars'], context: HookContext) {
   const {
     app,
-    params: { provider },
+    params: { provider, $getInfo },
   } = context;
   const record = car && car.dataValues ? car.dataValues : car;
 
-  if (!record || !provider) {
+  if (!record || (!provider && !$getInfo)) {
     return car;
   }
 
@@ -65,7 +65,6 @@ async function getInfo(car: ServiceModels['cars'], context: HookContext) {
     const info = <ServiceModels['car/info']>(
       await app.service('car/info').find({ query: { carId: record.id } })
     );
-    console.log(info);
 
     record.info = info;
   } catch (err) {

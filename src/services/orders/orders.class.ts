@@ -1,11 +1,12 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Application, ServiceModels } from '../../declarations';
 import { Id } from '@feathersjs/feathers';
 
 export interface Data {
   id: Id;
   clientId: Id;
   companyId?: Id;
+  carId?: Id;
   title: string;
   description?: string;
   vin?: string;
@@ -16,6 +17,10 @@ export interface Data {
 
   dataValues?: Data;
   toJSON?: () => Data;
+
+  assessment?: string;
+  client?: ServiceModels['clients'];
+  car?: ServiceModels['cars'];
 }
 
 declare module '../../declarations' {

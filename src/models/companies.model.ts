@@ -36,6 +36,13 @@ export default function (app: Application): typeof Model {
       timeWork: {
         type: DataTypes.ARRAY(DataTypes.JSON),
       },
+      status: {
+        type: DataTypes.STRING,
+        validate: {
+          isIn: [['active', 'unactive', 'banned']],
+        },
+        defaultValue: 'active',
+      },
     },
     {
       hooks: {

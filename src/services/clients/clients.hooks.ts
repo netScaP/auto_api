@@ -4,6 +4,7 @@ import { HookContext } from '../../app';
 import { ServiceModels } from '../../declarations';
 
 import relatePermissions from '../../hooks/relate-permissions';
+import search from '../../hooks/search';
 import transformPhone from '../../hooks/transform-phone';
 
 import { generatePassword } from '../../utils/helpers';
@@ -21,8 +22,8 @@ const permissions = [
 
 export default {
   before: {
-    all: [authenticate('jwt'), transformPhone()],
-    find: [],
+    all: [authenticate('jwt'), transformPhone(), clientAccumulatedFields()],
+    find: [search({ fields: ['phone'] })],
     get: [],
     create: [],
     update: [...permissions],
@@ -50,6 +51,30 @@ export default {
     remove: [],
   },
 };
+
+function clientAccumulatedFields() {
+  return async (context: HookContext<ServiceModels['clients']>) => {
+    context.params.sequelize = context.params.sequelize || {};
+    context.params.sequelize.attributes = context.params.sequelize.attributes || {};
+    context.params.sequelize.attributes.include = context.params.sequelize.attributes.include || [];
+    context.params.sequelize.attributes = {
+      include: [
+        ...context.params.sequelize.attributes.include,
+        [
+          `(
+            cast(
+              (SELECT AVG("client_feedbacks"."assessment") FROM client_feedbacks WHERE "client_feedbacks"."clientId" = "clients"."id")
+              as decimal(10,2)
+            )
+          )`,
+          'assessment',
+        ],
+      ],
+    };
+
+    return context;
+  };
+}
 
 function createUser() {
   return async (context: HookContext<ServiceModels['clients']>) => {

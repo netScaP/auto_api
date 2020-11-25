@@ -8,11 +8,14 @@ export interface Data {
   phone: string;
   email?: string;
   name?: string;
+  status: 'active' | 'unactive' | 'banned';
   createdAt: Date;
   updatedAt: Date;
 
   dataValues?: Data;
   toJSON?: () => Data;
+
+  assessment?: string;
 }
 
 declare module '../../declarations' {

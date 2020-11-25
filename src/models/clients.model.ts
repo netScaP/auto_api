@@ -21,6 +21,13 @@ export default function (app: Application): typeof Model {
         type: DataTypes.STRING,
         unique: true,
       },
+      status: {
+        type: DataTypes.STRING,
+        validate: {
+          isIn: [['active', 'unactive', 'banned']],
+        },
+        defaultValue: 'active',
+      },
     },
     {
       hooks: {
