@@ -3,26 +3,28 @@ import { Hook, HookContext } from '@feathersjs/feathers';
 
 /**
  * params.sequelize = {
- *  [field]: { $iLike: query.$search }
+ *  [field]: { $iLike: query[queryField] }
  * }
  */
 export default (options: {
   fields?: string[];
   queries?: string[];
   external?: { service: string; externalIdField: string; idField: string };
+  queryField?: string;
 }): Hook => {
   return async (context: HookContext) => {
     const { app, params } = context;
     const sequelizeClient = app.get('sequelizeClient');
     const { fields, queries, external } = options;
+    const queryField = options.queryField || '$search';
 
-    if (!params.query || !params.query.$search) {
+    if (!params.query || !params.query[queryField]) {
       return context;
     }
 
     const $or: any[] = [];
 
-    const searchString = params.query.$search.replace(/(_)/g, '\\$1');
+    const searchString = params.query[queryField].replace(/(_)/g, '\\$1');
 
     if (fields) {
       fields.forEach(key => {
@@ -56,7 +58,7 @@ export default (options: {
       });
     }
 
-    delete params.query.$search;
+    delete params.query[queryField];
 
     params.query = params.query || {};
     params.query.$and = params.query.$and || [];

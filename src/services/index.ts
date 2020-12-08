@@ -14,6 +14,7 @@ import carInfo from './car/info/info.service';
 import cars from './cars/cars.service';
 import statsLineChart from './stats/line-chart/line-chart.service';
 import statsPieChart from './stats/pie-chart/pie-chart.service';
+import uploads from './uploads/uploads.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -32,4 +33,5 @@ export default function (app: Application): void {
   app.configure(cars);
   app.configure(statsLineChart);
   app.configure(statsPieChart);
+  app.configure(uploads);
 }

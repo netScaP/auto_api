@@ -64,15 +64,15 @@ const joins = [
   },
 ];
 const defaultJoins = {
-  client: true,
+  client: false,
   car: true,
 };
 
 export default {
   before: {
-    all: [includes({ joins, defaultJoins }), orderAccumulatedFields()],
-    find: [],
-    get: [],
+    all: [],
+    find: [includes({ joins, defaultJoins }), ordersFilters(), orderAccumulatedFields()],
+    get: [includes({ joins, defaultJoins }), orderAccumulatedFields()],
     create: [...permissions],
     update: [...permissions],
     patch: [...permissions],
@@ -119,6 +119,44 @@ function orderAccumulatedFields() {
         ],
       ],
     };
+
+    return context;
+  };
+}
+
+function ordersFilters() {
+  return async (context: HookContext<ServiceModels['orders']>) => {
+    const {
+      app,
+      params: { query },
+    } = context;
+    const sequelizeClient = app.get('sequelizeClient');
+
+    if (!query) {
+      return context;
+    }
+
+    query.$and = query.$and || [];
+    if (query.car && Object.keys(query.car).length > 0) {
+      query.$and.push(
+        sequelizeClient.literal(`(
+          SELECT CASE WHEN EXISTS (
+            SELECT *
+            FROM "cars"
+            WHERE
+              "orders"."carId" = "cars"."id" AND
+              ${Object.keys(query.car)
+                .map(key => '"cars"."' + key + '" = ' + query.car[key])
+                .join(' AND ')}
+          )
+          THEN TRUE
+          ELSE FALSE
+          END
+        )`)
+      );
+    }
+
+    delete query.car;
 
     return context;
   };

@@ -8,14 +8,14 @@ import hooks from './cars.hooks';
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'cars': Cars & ServiceAddons<any>;
+    cars: Cars & ServiceAddons<any>;
   }
 }
 
 export default function (app: Application): void {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
   };
 
   // Initialize our service with any options it requires
@@ -24,5 +24,5 @@ export default function (app: Application): void {
   // Get our initialized service so that we can register hooks
   const service = app.service('cars');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 }

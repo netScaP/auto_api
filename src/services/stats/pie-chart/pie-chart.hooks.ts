@@ -8,7 +8,7 @@ const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    // all: [authenticate('jwt')],
     find: [
       async (context: HookContext) => {
         const {
@@ -60,16 +60,17 @@ export default {
         });
         const orderCompanies = <IPieData[]>await OrderModel.findAll({
           where: { ...modelQuery, status: 'done' },
-          group: [sequelizeClient.col('companyId')],
+          group: [sequelizeClient.col('"company"."name"')],
           include: [
             {
               model: models.companies,
               as: 'company',
+              attributes: [],
             },
           ],
           attributes: [
             [sequelizeClient.col('"company"."name"'), 'name'],
-            [sequelizeClient.fn('count', sequelizeClient.col('id')), 'val'],
+            [sequelizeClient.fn('count', sequelizeClient.col('"orders"."id"')), 'val'],
           ],
         });
 

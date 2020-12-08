@@ -7,7 +7,7 @@ import relatePermissions from '../../hooks/relate-permissions';
 import search from '../../hooks/search';
 import transformPhone from '../../hooks/transform-phone';
 
-import { generatePassword } from '../../utils/helpers';
+import { generatePassword, maskPhone } from '../../utils/helpers';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -23,7 +23,11 @@ const permissions = [
 export default {
   before: {
     all: [authenticate('jwt'), transformPhone(), clientAccumulatedFields()],
-    find: [search({ fields: ['phone'] })],
+    find: [
+      transformPhoneInQuery(),
+      search({ fields: ['name', 'email'] }),
+      search({ fields: ['phone'], queryField: '$phone' }),
+    ],
     get: [],
     create: [],
     update: [...permissions],
@@ -71,6 +75,20 @@ function clientAccumulatedFields() {
         ],
       ],
     };
+
+    return context;
+  };
+}
+
+function transformPhoneInQuery() {
+  return async (context: HookContext<ServiceModels['clients']>) => {
+    const {
+      params: { query },
+    } = context;
+
+    if (query && query.$phone) {
+      query.$phone = maskPhone(query.$phone);
+    }
 
     return context;
   };

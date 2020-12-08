@@ -12,6 +12,9 @@ export default function (app: Application): typeof Model {
       title: {
         type: DataTypes.STRING,
       },
+      plateNumbers: {
+        type: DataTypes.STRING,
+      },
 
       id_car_type: {
         type: DataTypes.INTEGER,

@@ -3,6 +3,7 @@ import * as local from '@feathersjs/authentication-local';
 import checkPermissions from 'feathers-permissions';
 
 import relatePermissions from '../../hooks/relate-permissions';
+import search from '../../hooks/search';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = feathersAuthentication.hooks;
@@ -11,7 +12,7 @@ const { hashPassword, protect } = local.hooks;
 export default {
   before: {
     all: [authenticate('jwt'), relatePermissions({ type: 'company', relateField: 'companyId' })],
-    find: [],
+    find: [search({ fields: ['email', 'phone'] })],
     get: [],
     create: [
       checkPermissions({ field: 'role', roles: ['admin', 'company'] }),

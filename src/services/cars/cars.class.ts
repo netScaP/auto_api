@@ -5,6 +5,7 @@ import { Id } from '@feathersjs/feathers';
 export interface Data {
   id: Id;
   title?: string;
+  plateNumbers?: string;
 
   id_car_type: number;
   id_car_mark: number;
@@ -20,6 +21,8 @@ export interface Data {
   toJSON?: () => Data;
 
   info?: ServiceModels['car/info'];
+
+  photos?: ServiceModels['uploads'][];
 }
 
 declare module '../../declarations' {

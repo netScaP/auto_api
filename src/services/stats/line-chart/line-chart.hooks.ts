@@ -7,7 +7,7 @@ const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    // all: [authenticate('jwt')],
     find: [
       async (context: HookContext) => {
         const {
@@ -16,14 +16,15 @@ export default {
         } = context;
 
         const sequelizeClient = app.get('sequelizeClient');
-        const { Model } = app.service('orders');
+        const { Model: OrderModel } = app.service('orders');
+        const { Model: ClientModel } = app.service('clients');
+        const { Model: OrderResponseModel } = app.service('order-response');
 
         const modelQuery: { [key: string]: any } = {
           createdAt: {
-            $gte: moment().subtract(24, 'hour').format(),
-            $lte: moment().format(),
+            $gte: moment().subtract(24, 'hour').startOf('day').format(),
+            $lte: moment().subtract(24, 'hour').endOf('day').format(),
           },
-          status: 'done',
         };
 
         if (query && query.createdAt) {
@@ -47,12 +48,6 @@ export default {
           dateRange = 'year';
         }
 
-        if (user && user.role === 'company') {
-          modelQuery.companyId = user.companyId;
-        } else if (query && query.companyId) {
-          modelQuery.companyId = query.companyId;
-        }
-
         interface IRecord {
           date: string;
           val: number;
@@ -68,10 +63,31 @@ export default {
 
         const responses = [];
         const lineData: { [key: string]: { [key: string]: number } } = {};
-        for (const type in ['detailing', 'repair', 'spare']) {
-          const typeResponse = <IRecord[]>await Model.findAll({
-            logging: console.log,
-            where: { ...modelQuery, type },
+        const endDate = moment(modelQuery.createdAt.$lte);
+        for (
+          let i = moment(modelQuery.createdAt.$gte);
+          i <= endDate;
+          i = i.clone().add(1, dateRange)
+        ) {
+          lineData[i.clone().format()] = {
+            detailing: 0,
+            repair: 0,
+            spare: 0,
+            sum: 0,
+            newClients: 0,
+            newOrders: 0,
+            responses: 0,
+          };
+        }
+
+        async function getStats(
+          model: any,
+          field: string,
+          additionalQuery?: { [key: string]: any }
+        ) {
+          const typeResponse = <IRecord[]>await model.findAll({
+            // logging: console.log,
+            where: { ...modelQuery, ...(additionalQuery || {}) },
             group: [sequelizeClient.fn('date_trunc', dateRange, sequelizeClient.col('createdAt'))],
             attributes: [
               [
@@ -87,25 +103,31 @@ export default {
             .sort((x, y) => moment(x.date).unix() - moment(y.date).unix())
             .map(e => {
               const record = e && e.dataValues ? e.dataValues : e;
-              const date = moment(record.date).format(dateFormats[dateRange]);
+              const date = moment(record.date).format(); //dateFormats[dateRange]);
               lineData[date] = lineData[date] || {};
-              lineData[date][type] = record.val;
+              lineData[date][field] = record.val;
             });
         }
-
-        Object.keys(lineData).forEach(
-          key =>
-            (lineData[key].sum = Object.values(lineData[key]).reduce(
-              (sum: number, e: number) => (sum += +e),
-              0
-            ))
-        );
+        const companyQuery: { companyId?: any } = {};
+        if (user && user.role === 'company') {
+          companyQuery.companyId = user.companyId;
+        } else if (query && query.companyId) {
+          companyQuery.companyId = query.companyId;
+        }
+        for (const type of ['detailing', 'repair', 'spare']) {
+          const doneQuery: { [key: string]: any } = { type, status: 'done' };
+          await getStats(OrderModel, type, { ...doneQuery, ...companyQuery });
+        }
+        await getStats(OrderResponseModel, 'responses', companyQuery);
+        await getStats(OrderModel, 'newOrders', companyQuery);
+        await getStats(ClientModel, 'newClients');
 
         context.result = {};
         context.result = {
           line: Object.keys(lineData)
             .map(date => ({ date, ...lineData[date] }))
-            .sort((x, y) => moment(x.date).unix() - moment(y.date).unix()),
+            .sort((x, y) => moment(x.date).unix() - moment(y.date).unix())
+            .map(e => ({ ...e, date: moment(e.date).format(dateFormats[dateRange]) })),
         };
 
         return context;

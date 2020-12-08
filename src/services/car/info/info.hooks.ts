@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers';
 import axios from 'axios';
 
 import { HookContext } from '../../../app';
@@ -17,7 +18,24 @@ export default {
         if (query.carId) {
           const car = <ServiceModels['cars']>await app.service('cars').get(query.carId);
 
-          query = { ...car };
+          query = Object.keys(car).reduce((q: { [key: string]: any }, key: string) => {
+            if (
+              [
+                'id_car_type',
+                'id_car_mark',
+                'id_car_model',
+                'id_car_generation',
+                'id_car_serie',
+                'id_car_modification',
+                'id_car_equipment',
+              ].includes(key)
+            ) {
+              // @ts-ignore
+              q[key] = car[key];
+            }
+
+            return q;
+          }, {});
         }
 
         const result = (
@@ -28,7 +46,14 @@ export default {
           })
         ).data;
 
-        context.result = result;
+        const ordersCount = (<Paginated<ServiceModels['orders']>>await app.service('orders').find({
+          query: {
+            car: query,
+            $limit: 0,
+          },
+        })).total;
+
+        context.result = { ...result, ordersCount };
 
         return context;
       },

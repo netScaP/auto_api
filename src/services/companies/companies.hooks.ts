@@ -1,4 +1,5 @@
 import * as authentication from '@feathersjs/authentication';
+import { disablePagination } from 'feathers-hooks-common';
 import checkPermissions from 'feathers-permissions';
 import { HookContext } from '../../app';
 import { ServiceModels } from '../../declarations';
@@ -20,9 +21,13 @@ const permissions = [
 
 export default {
   before: {
-    all: [companyAccumulatedFields()],
-    find: [search({ fields: ['name', 'email', 'phone'] })],
-    get: [],
+    all: [],
+    find: [
+      search({ fields: ['name', 'email', 'phone'] }),
+      companyAccumulatedFields(),
+      disablePagination(),
+    ],
+    get: [companyAccumulatedFields()],
     create: [
       authenticate('jwt'),
       checkPermissions({
